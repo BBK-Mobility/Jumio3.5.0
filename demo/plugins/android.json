@@ -7,9 +7,16 @@
     "files": {}
   },
   "installed_plugins": {
+    "cordova-plugin-whitelist": {
+      "PACKAGE_NAME": "com.jumio.cordova.demo"
+    },
     "cordova-plugin-jumio-mobilesdk": {
       "PACKAGE_NAME": "com.jumio.cordova.demo"
     }
   },
-  "dependent_plugins": {}
+  "dependent_plugins": {
+    "cordova-plugin-cocoapod-support": {
+      "PACKAGE_NAME": "com.jumio.cordova.demo"
+    }
+  }
 }

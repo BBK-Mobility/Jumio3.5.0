@@ -2,14 +2,14 @@
 
 Official Jumio Mobile SDK plugin for Apache Cordova
 
-This plugin is compatible with version 3.5.0 of the Jumio SDK. If you have questions, please reach out to your Account Manager or contact Jumio Support at support@jumio.com or https://support.jumio.com
+This plugin is compatible with version 2.12.0 of the Jumio SDK. This is the final update to the Cordova plugin — future SDK compatibility can not be guaranteed. If you have questions, please reach out to your Account Manager or contact Jumio Support at support@jumio.com or https://support.jumio.com 
 
 ## Compatibility
 With this release, we only ensure compatibility with the latest Cordova versions and plugins.
 At the time of this release, the following minimum versions are supported:
-* Cordova: 9.0.0
-* Cordova Android: 8.1.0
-* Cordova iOS: 5.0.1
+* Cordova: 7.1.0
+* Cordova Android: 6.4.0
+* Cordova iOS: 4.5.3
 
 ## Setup
 
@@ -19,14 +19,14 @@ cordova create MyProject com.my.project "MyProject"
 cd MyProject
 cordova platform add ios
 cordova platform add android
-cordova plugin add https://github.com/Jumio/mobile-cordova.git#v3.5.0
+cordova plugin add https://github.com/Jumio/mobile-cordova.git#v2.12.0
 ```
 
 ## Integration
 
 ### iOS
 
-Manual integration or dependency management via cocoapods possible, please see [the official documentation of the Jumio Mobile SDK for iOS](https://github.com/Jumio/mobile-sdk-ios/tree/v3.4.2#basic-setup)
+Manual integration or dependency management via cocoapods possible, please see [the official documentation of the Jumio Mobile SDK for iOS](https://github.com/Jumio/mobile-sdk-ios/tree/v2.12.0#basic-setup)
 
 ### Android
 
@@ -43,20 +43,26 @@ Add a parameter for your SDK_VERSION into the ext-section:
 
 ```
 ext {
-    SDK_VERSION = "3.5.0"
+    SDK_VERSION = "2.12.0"
 }
 ```
 
-Add required permissions for the products as described in chapter [Permissions](https://github.com/Jumio/mobile-sdk-android/blob/v3.5.0/README.md#permissions)
+Add required permissions for the products as described in chapter [Permissions](https://github.com/Jumio/mobile-sdk-android/blob/v2.12.0/README.md#permissions)
 
 Open the android project of your cordova project located in */platforms/android* and insert the dependencies from the products you require to your **build.gradle** file. (Module: android)
 
-* [Netverify & Fastfill](https://github.com/Jumio/mobile-sdk-android/blob/v3.5.0/docs/integration_netverify-fastfill.md#dependencies)
-* [Document Verification](https://github.com/Jumio/mobile-sdk-android/blob/v3.5.0/docs/integration_document-verification.md#dependencies)
-* [BAM Checkout](https://github.com/Jumio/mobile-sdk-android/blob/v3.5.0/docs/integration_bam-checkout.md#dependencies)
+* [Netverify & Fastfill](https://github.com/Jumio/mobile-sdk-android/blob/v2.12.0/docs/integration_netverify-fastfill.md#dependencies)
+* [Document Verification](https://github.com/Jumio/mobile-sdk-android/blob/v2.12.0/docs/integration_document-verification.md#dependencies)
+* [BAM Checkout](https://github.com/Jumio/mobile-sdk-android/blob/v2.12.0/docs/integration_bam-checkout.md#dependencies)
 
-Due to the outdated Cordova platform that is not yet updated for Android API version 28 and AndroidX, it's necessary to adapt your project to support the proper build environment for the native Jumio Android component. Take a look at the [Demo App build.gradle](https://github.com/Jumio/mobile-cordova/blob/master/demo/platforms/android/build.gradle) how to upgrade to API level 28. The [FAQ section](#faq) at the bottom covers common build issues and how to fix them.
-Open your Cordova Android project in Android Studio to get IDE auto-suggestions and support for all the required changes.
+__Note:__ If you are using Netverify, make sure to add the Google vision meta-data to you **AndroidManifest.xml** accordingly:
+
+```
+<meta-data
+			android:name="com.google.android.gms.vision.DEPENDENCIES"
+			android:value="barcode, face"
+			tools:replace="android:value"/>
+```
 
 ## Usage
 
@@ -68,27 +74,26 @@ To initialize the SDK, perform the following call.
 Jumio.initNetverify(<API_TOKEN>, <API_SECRET>, <DATACENTER>, {configuration});
 ```
 
-Datacenter can either be **US**, **EU** or **SG**.
+Datacenter can either be **US** or **EU**.
+
 
 
 Configure the SDK with the *configuration*-Object.
 
 | Configuration | Datatype | Description |
 | ------ | -------- | ----------- |
-| enableVerification | Boolean | Enable ID verification |
+| requireVerification | Boolean | Enable ID verification |
 | callbackUrl | String | Specify an URL for individual transactions |
-| enableIdentityVerification | Boolean | Enable face match during the ID verification for a specific transaction |
+| requireFaceMatch | Boolean | Enable face match during the ID verification for a specific transaction |
 | preselectedCountry | Boolean | Specify the issuing country (ISO 3166-1 alpha-3 country code) |
-| customerInternalReference | String | Allows you to identify the scan (max. 100 characters) |
-| reportingCriteria | String | Use this option to identify the scan in your reports (max. 100 characters) |
-| userReference | String | Set a customer identifier (max. 100 characters) |
+| merchantScanReference | String | Allows you to identify the scan (max. 100 characters) |
+| merchantReportingCriteria | String | Use this option to identify the scan in your reports (max. 100 characters) |
+| customerId | String | Set a customer identifier (max. 100 characters) |
 | sendDebugInfoToJumio | Boolean | Send debug information to Jumio. |
 | dataExtractionOnMobileOnly | Boolean | Limit data extraction to be done on device only |
 | cameraPosition | String | Which camera is used by default. Can be **FRONT** or **BACK**. |
 | preselectedDocumentVariant | String | Which types of document variants are available. Can be **PAPER** or **PLASTIC** |
 | documentTypes | String-Array | An array of accepted document types: Available document types: **PASSPORT**, **DRIVER_LICENSE**, **IDENTITY_CARD**, **VISA** |
-| enableWatchlistScreening | String | Enables [Jumio Screening](https://www.jumio.com/screening/). Can be **ENABLED**, **DISABLED** or **DEFAULT** (when not specified reverts to **DEFAULT**) |
-| watchlistSearchProfile | String | Specifies specific profile of watchlist |
 
 
 Initialization example with configuration.
@@ -96,12 +101,10 @@ Initialization example with configuration.
 ```javascript
 Jumio.initNetverify("API_TOKEN", "API_SECRET", "US", {
     requireVerification: false,
-    userReference: "USERREFERENCE",
+    customerId: "CUSTOMERID",
     preselectedCountry: "USA",
     cameraPosition: "BACK",
-    documentTypes: ["DRIVER_LICENSE", "PASSPORT", "IDENTITY_CARD", "VISA"],
-    enableWatchlistScreening: "ENABLED",
-    watchlistSearchProfile: "YOURPROFILENAME"
+    documentTypes: ["DRIVER_LICENSE", "PASSPORT", "IDENTITY_CARD", "VISA"]
 });
 ```
 
@@ -113,13 +116,13 @@ If you are using eMRTD scanning, following lines are needed in your Manifest fil
 -keep class net.sf.scuba.smartcards.IsoDepCardService {*;}
 -keep class org.jmrtd.** { *; }
 -keep class net.sf.scuba.** {*;}
--keep class org.bouncycastle.** {*;}
+-keep class org.spongycastle.** {*;}
 -keep class org.ejbca.** {*;}
 
 -dontwarn java.nio.**
 -dontwarn org.codehaus.**
 -dontwarn org.ejbca.**
--dontwarn org.bouncycastle.**
+-dontwarn org.spongycastle.**
 ```
 
 Add the needed dependencies following [this chapter](https://github.com/Jumio/mobile-sdk-android/blob/master/docs/integration_netverify-fastfill.md#dependencies) of the android integration guide.
@@ -147,53 +150,6 @@ Jumio.startNetverify(function(documentData) {
 });
 ```
 
-### Authentication
-
-To initialize the SDK, perform the following call.
-```javascript
-  Jumio.initAuthentication(<API_TOKEN>, <API_SECRET>, <DATACENTER>, {configuration});
-```
-
-To start the SDK, perform the following call.
-
-```javascript
-Jumio.startAuthentication();
-```
-
-Datacenter can either be **US**, **EU** or **SG**.
-
-Configure the SDK with the *configuration*-Object. **(configuration marked with * are mandatory)**
-
-In order to connect the Authentication transaction to a specific Netverify user identity the parameter `enrollmentTransactionReference` must be set. In case an Authentication transaction has been created via the facemap server to server API `authenticationTransactionReference` should be used. Therefore `enrollmentTransactionReference` should not be set.
-
-| Configuration | Datatype | Description |
-| ------ | -------- | ----------- |
-| **enrollmentTransactionReference*** | String | The reference of the enrollment scan to authenticate for |
-| **authenticationTransactionReference*** | String | The reference of the authentication scan to authenticate for |
-| **userReference*** | String | Set a customer identifier (max. 100 characters) |
-| callbackUrl | String | Specify an URL for callback |
-
-Initialization example with configuration:
-```javascript
-    initAuthentication: function() {
-      // Authentication
-      Jumio.initAuthentication(<API_TOKEN>, <API_SECRET>, <DATACENTER>, {
-        enrollmentTransactionReference: "EnrollmentTransactionReference",
-        //authenticationTransactionReference: "AuthenticationTransactionReference",
-        userReference: "UserReference"
-        callbackUrl: "URL"
-      });
-    }
-
-    startAuthentication: function() {
-      Jumio.startAuthentication(function(result) {
-          alert(JSON.stringify(result));
-        }, function(error) {
-          alert(JSON.stringify(error));
-      });
-    }
-```
-
 ### Document Verification
 
 To initialize the SDK, perform the following call.
@@ -202,17 +158,17 @@ To initialize the SDK, perform the following call.
 Jumio.initDocumentVerification(<API_TOKEN>, <API_SECRET>, <DATACENTER>, {configuration});
 ```
 
-Datacenter can either be **US**, **EU** or **SG**.
+Datacenter can either be **US** or **EU**.
 
 Configure the SDK with the *configuration*-Object. **(configuration marked with * are mandatory)**
 
 | Configuration | Datatype | Description |
 | ------ | -------- | ----------- |
 | **type*** | String | See the list below |
-| **userReference*** | String | Set a customer identifier (max. 100 characters) |
+| **customerId*** | String | Set a customer identifier (max. 100 characters) |
 | **country*** | String | Set the country (ISO-3166-1 alpha-3 code) |
-| **customerInternalReference*** | String | Allows you to identify the scan (max. 100 characters) |
-| reportingCriteria | String | Use this option to identify the scan in your reports (max. 100 characters) |
+| **merchantScanReference*** | String | Allows you to identify the scan (max. 100 characters) |
+| merchantReportingCriteria | String | Use this option to identify the scan in your reports (max. 100 characters) |
 | callbackUrl | String | Specify an URL for individual transactions |
 | documentName | String | Override the document label on the help screen |
 | customDocumentCode | String | Set your custom document code (set in the merchant backend under "Settings" - "Multi Documents" - "Custom" |
@@ -253,9 +209,9 @@ Initialization example with configuration.
 ```javascript
 Jumio.initDocumentVerification("API_TOKEN", "API_SECRET", "US", {
     type: "BC",
-    userReference: "USERREFERENCE",
+    customerId: "CUSTOMER ID",
     country: "USA",
-    customerInternalReference: "YOURSCANREFERENCE",
+    merchantScanReference: "YOURSCANREFERENCE",
     cameraPosition: "BACK"
 });
 ```
@@ -284,7 +240,7 @@ To Initialize the SDK, perform the following call.
 Jumio.initBAM(<API_TOKEN>, <API_SECRET>, <DATACENTER>, {configuration});
 ```
 
-Datacenter can either be **US**, **EU** or **SG**.
+Datacenter can either be **US** or **EU**.
 
 
 
@@ -339,13 +295,13 @@ Jumio.startBAM(function(cardInformation) {
 ### Android
 
 #### Netverify
-The Netverify SDK can be customized to the respective needs by following this [customization chapter](https://github.com/Jumio/mobile-sdk-android/blob/v3.5.0/docs/integration_netverify-fastfill.md#customization).
+The Netverify SDK can be customized to the respective needs by following this [customization chapter](https://github.com/Jumio/mobile-sdk-android/blob/v2.12.0/docs/integration_netverify-fastfill.md#customization).
 
 #### BAM Checkout
-The Netverify SDK can be customized to the respective needs by following this [customization chapter](https://github.com/Jumio/mobile-sdk-android/blob/v3.5.0/docs/integration_bam-checkout.md#customization).
+The Netverify SDK can be customized to the respective needs by following this [customization chapter](https://github.com/Jumio/mobile-sdk-android/blob/v2.12.0/docs/integration_bam-checkout.md#customization).
 
 #### Document Verification
-The Netverify SDK can be customized to the respective needs by following this [customization chapter](https://github.com/Jumio/mobile-sdk-android/blob/v3.5.0/docs/integration_document-verification.md#customization).
+The Netverify SDK can be customized to the respective needs by following this [customization chapter](https://github.com/Jumio/mobile-sdk-android/blob/v2.12.0/docs/integration_document-verification.md#customization).
 
 ### iOS
 The SDK can be customized to the respective needs. You can pass the following customization options to the initializer:
@@ -373,7 +329,6 @@ The SDK can be customized to the respective needs. You can pass the following cu
 | negativeButtonBackgroundColor | STRING | Change the background color of the negative button |
 | negativeButtonBorderColor | STRING | Change the border color of the negative button |
 | negativeButtonTitleColor | STRING | Change the title color of the negative button |
-| scanBackgroundColor (NV only) | STRING | Change the background color of the scan overlay |
 | scanOverlayStandardColor (NV only) | STRING | Change the standard color of the scan overlay |
 | scanOverlayValidColor (NV only) | STRING | Change the valid color of the scan overlay |
 | scanOverlayInvalidColor (NV only) | STRING | Change the invalid color of the scan overlay |
@@ -383,7 +338,7 @@ The SDK can be customized to the respective needs. You can pass the following cu
 All colors are provided with a HEX string with the following format: #ff00ff.
 
 **Customization example**
-```
+```javascript
 Jumio.initNetverify("API_TOKEN", "API_SECRET", "US", {
     requireVerification: false,
     ...
@@ -415,6 +370,7 @@ The JSONObject with all the extracted data that is returned for the specific pro
 | issuingCountry | String | 3 | Country of issue as ([ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3)) country code |
 | lastName | String | 100 | Last name of the customer|
 | firstName | String | 100 | First name of the customer|
+| middleName | String | 100 | Middle name of the customer |
 | dob | Date | | Date of birth |
 | gender | String | 1| m, f or x |
 | originatingCountry | String | 3|Country of origin as ([ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3)) country code |
@@ -466,38 +422,11 @@ The JSONObject with all the extracted data that is returned for the specific pro
 
 No data returned.
 
-# FAQ
-
-This is a list of common Android build issues and how to resolve them:
-* Gradle plugin 4.X not supported, please install 5.X
-
-	-> Change the version in the gradle-wrapper.properties file
-* MinSdkVersion/TargetSdkVersion not supported in AndroidManifest.xml
-
-	-> Remove both versions from AndroidManifest.xml as suggested by Android Studio (as they are taken from build.gradle only since Gradle 5)
-* Command "compile" is obsolete, use implementation instead
-
-	-> Change all dependency declarations to use "implementation" instead of "compile" to support the latest gradle changes - https://github.com/Jumio/mobile-cordova/blob/master/demo/platforms/android/build.gradle#L291
-* Theme.Netverify/Bam/DocumentVerification/Authentication cannot be resolved
-
-	-> Add the Jumio dependencies as proposed here: https://github.com/Jumio/mobile-cordova/blob/master/demo/platforms/android/build.gradle#L95
-* Ressources from styles.xml "cornerRadius" and others not found
-
-  -> Build tools and support library are not at version 28. Change compileSdk and buildToolsVersion as described here -> https://github.com/Jumio/mobile-cordova/blob/master/demo/platforms/android/build.gradle#L222
-* Device-ready not fired after X seconds
-
-  -> The plugin definition in "YOURPROJECT/platforms/android/platform_www/plugins/cordova-plugin-jumio-mobilesdk/www" might be duplicated/corrupted due to the issue mentioned in this Stackoverflow post - https://stackoverflow.com/questions/28017540/cordova-plugin-javascript-gets-corrupted-when-added-to-project/28264312#28264312 , please fix the duplicated "cordova.define()" call in these files as mentioned in the post.
-
 # Support
 
 ## Contact
 
 If you have any questions regarding our implementation guide please contact Jumio Customer Service at support@jumio.com or https://support.jumio.com. The Jumio online helpdesk contains a wealth of information regarding our service including demo videos, product descriptions, FAQs and other things that may help to get you started with Jumio. Check it out at: https://support.jumio.com.
-
-## Licenses
-The software contains third-party open source software. For more information, please see [Android licenses](https://github.com/Jumio/mobile-sdk-android/tree/master/licenses) and [iOS licenses](https://github.com/Jumio/mobile-sdk-ios/tree/master/licenses)
-
-This software is based in part on the work of the Independent JPEG Group.
 
 ## Copyright
 

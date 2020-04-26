@@ -7,7 +7,6 @@ demo/platforms/ios/Pods
 demo/platforms/ios/Podfile.lock
 demo/platforms/ios/CordovaLib/CordovaLib.xcodeproj/xcuserdata
 demo/package-lock.json
-demo/node_modules
 
 # Log Files
 *.log
@@ -18,7 +17,7 @@ demo/node_modules
 # Android Studio captures folder
 captures/
 
-# Intellij & etc
+# Intellij
 *.iml
 .idea/workspace.xml
 .idea/tasks.xml
@@ -26,4 +25,3 @@ captures/
 .idea/dictionaries
 .idea/libraries
 *.iml
-.vscode/

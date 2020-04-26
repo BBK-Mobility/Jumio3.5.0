@@ -1,8 +1,8 @@
 *.mode1v3
 *.perspectivev3
 *.pbxuser
+*.xcarchive
 .DS_Store
 build/
-cordova/
-CordovaLib/
 Pods/
+Podfile.lock
